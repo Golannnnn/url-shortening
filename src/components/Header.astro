@@ -1,0 +1,187 @@
+---
+
+---
+
+<header>
+  <menu>
+    <h1>Shortly</h1>
+    <svg width="30" height="30" viewBox="0 0 10 6">
+      <line x1="1" y1="0" x2="9" y2="0" stroke="grey"></line>
+      <line x1="1" y1="3" x2="9" y2="3" stroke="grey"></line>
+      <line x1="1" y1="6" x2="9" y2="6" stroke="grey"></line>
+    </svg>
+  </menu>
+  <nav>
+    <div class="page-sections">
+      <a href="#">Features</a>
+      <a href="#">Pricing</a>
+      <a href="#">Resources</a>
+    </div>
+    <div class="account-sections">
+      <hr />
+      <a href="#">Login</a>
+      <button class="btn btn-round">
+        <a href="#">Signup</a>
+      </button>
+    </div>
+  </nav>
+</header>
+
+<style>
+  header {
+    display: flex;
+    flex-direction: column;
+    max-width: 100%;
+    font-weight: 700;
+  }
+
+  h1,
+  svg {
+    padding: 0;
+    margin: 0;
+    cursor: pointer;
+  }
+
+  h1 {
+    color: var(--very-dark-blue);
+  }
+
+  menu {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    margin: 25px 25px 0px 25px;
+    padding: 0;
+  }
+
+  nav {
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 95px;
+    margin: 0 25px;
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    max-width: 100%;
+    border-radius: 10px;
+    padding: 35px 30px 20px 30px;
+    background-color: var(--dark-violet);
+  }
+
+  nav.open {
+    display: flex;
+  }
+
+  nav .page-sections,
+  nav .account-sections {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+  }
+
+  nav .page-sections > *,
+  nav .account-sections > * {
+    margin-bottom: 25px;
+  }
+
+  nav a {
+    color: white;
+    text-decoration: none;
+  }
+
+  nav button {
+    width: 100%;
+  }
+
+  hr {
+    width: 100%;
+    display: block;
+    height: 1px;
+    border: 0;
+    border-top: 1px solid var(--grayish-violet);
+    margin: 1em 0;
+    padding: 0;
+  }
+
+  @media (min-width: 768px) {
+    header {
+      flex-direction: row;
+      gap: 25px;
+      margin: 25px 40px 25px 40px;
+    }
+
+    svg {
+      display: none;
+    }
+
+    menu {
+      padding: 0;
+      margin: 0;
+      margin-left: 25px;
+    }
+
+    h1 {
+      align-self: flex-start;
+      margin-top: -5px;
+    }
+
+    nav {
+      position: unset;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      flex-direction: row;
+      justify-content: space-between;
+      width: 100%;
+      max-width: 100%;
+      background-color: unset;
+      margin-right: 25px;
+    }
+
+    hr {
+      display: none;
+    }
+
+    nav .page-sections,
+    nav .account-sections {
+      display: flex;
+      flex-direction: row;
+      width: 100%;
+      gap: 35px;
+    }
+
+    nav .page-sections {
+      width: max-content;
+    }
+
+    nav .account-sections {
+      width: max-content;
+    }
+
+    nav a:not(button a) {
+      color: var(--gray);
+    }
+
+    nav a:not(button a):hover {
+      color: black;
+    }
+
+    a {
+      font-size: 0.9rem;
+    }
+  }
+</style>
+
+<script>
+  const hamburger = document.querySelector("svg") as SVGElement;
+  const nav = document.querySelector("nav") as HTMLElement;
+
+  hamburger.addEventListener("click", () => {
+    nav.classList.toggle("open");
+  });
+</script>

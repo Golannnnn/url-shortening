@@ -1,0 +1,340 @@
+---
+
+---
+
+<section id="shortener">
+  <form>
+    <div class="text-input">
+      <input
+        type="text"
+        name=""
+        id=""
+        placeholder="Shorten a link here..."
+        required
+      />
+      <span class="error"></span>
+    </div>
+    <input type="submit" value="Shorten it!" class="btn" />
+  </form>
+
+  <template>
+    <div class="short-url">
+      <span class="long-url-link"></span>
+      <hr />
+      <div class="short-url-right">
+        <span class="short-url-link"></span>
+        <button class="short-url-copy btn">Copy</button>
+      </div>
+    </div>
+  </template>
+</section>
+
+<style>
+  section {
+    background-color: var(--light-gray);
+    border: 1px solid transparent;
+    margin-top: 85px;
+  }
+
+  form {
+    max-width: 100%;
+    border-radius: 10px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+    padding-top: 25px;
+    margin: 25px;
+    margin-top: -85px;
+    background-image: url("../assets/images/bg-shorten-mobile.svg");
+    background-color: var(--dark-violet);
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: cover;
+    gap: 15px;
+  }
+
+  .text-input {
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: flex-start;
+    gap: 6px;
+    width: 100%;
+  }
+
+  .error {
+    font-style: italic;
+    color: var(--red);
+    font-size: 0.8rem;
+  }
+
+  input[type="text"],
+  input[type="submit"] {
+    border-radius: 5px;
+    width: 100%;
+  }
+
+  input[type="text"] {
+    border: none;
+    padding: 10px 15px;
+    font-size: 0.9rem;
+    border: 2px solid transparent;
+  }
+
+  .input-error:focus {
+    outline: none;
+    border-color: var(--red);
+  }
+
+  .input-error::placeholder {
+    color: var(--red);
+    opacity: 0.5;
+  }
+
+  input[type="submit"] {
+    padding: 10px 0;
+  }
+
+  .short-url {
+    display: flex;
+    flex-direction: column;
+    background-color: white;
+    border-radius: 5px;
+    padding: 15px 0;
+    margin: 15px 25px 25px 25px;
+  }
+
+  .long-url-link {
+    margin: 0px 20px 10px 20px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  hr {
+    width: 100%;
+    display: block;
+    height: 0.5px;
+    border: 0;
+    border-top: 0.5px solid var(--grayish-violet);
+    padding: 0;
+    margin-bottom: 10px;
+  }
+
+  .short-url-right {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .short-url-link {
+    color: var(--cyan);
+    margin: 0 20px 10px 20px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .short-url-copy {
+    border-radius: 5px;
+    padding: 10px;
+    margin: 0 20px 5px 20px;
+    min-width: 150px;
+  }
+
+  .clicked {
+    background-color: var(--dark-violet);
+  }
+
+  @media (min-width: 768px) {
+    section {
+      margin-top: 150px;
+      padding: 0 40px;
+    }
+
+    form {
+      flex-direction: row;
+      align-items: flex-start;
+      margin-top: -70px;
+      padding: 40px;
+    }
+
+    .text-input {
+      flex: 3;
+    }
+
+    input[type="submit"] {
+      flex: 1;
+      max-width: 200px;
+    }
+
+    .short-url {
+      flex-direction: row;
+      align-items: center;
+      background-color: white;
+      justify-content: space-between;
+    }
+
+    .long-url-link {
+      align-self: center;
+      justify-self: center;
+    }
+
+    .short-url > * {
+      margin: 0 5px 0 15px;
+    }
+
+    .short-url-right > * {
+      margin: 0 15px;
+    }
+
+    .short-url-right {
+      flex-direction: row;
+      align-items: center;
+      justify-content: center;
+    }
+
+    hr {
+      display: none;
+    }
+  }
+</style>
+
+<script>
+  const section = document.querySelector("#shortener") as HTMLElement;
+  const form = document.querySelector("form") as HTMLFormElement;
+  const input = form.querySelector('input[type="text"]') as HTMLInputElement;
+  const errorMessageElement = form.querySelector(".error") as HTMLSpanElement;
+  const template = document.querySelector("template") as HTMLTemplateElement;
+
+  form.addEventListener("submit", async (e: SubmitEvent) => {
+    e.preventDefault();
+
+    const errorMessage = getErrorMessage(input.value);
+    if (errorMessage) {
+      addErrorMessageToElement(errorMessage);
+      return;
+    }
+
+    clearError();
+
+    try {
+      const url = await shortenApi(input.value);
+      createShortUrlBox(input.value, url);
+    } catch {
+      addErrorMessageToElement("Something went wrong.");
+    }
+  });
+
+  section.addEventListener("click", (e: MouseEvent) => {
+    const element = e.target as HTMLElement;
+    if (element.tagName !== "BUTTON") {
+      return;
+    }
+
+    const parentElement = element.parentElement;
+    if (!parentElement) return;
+
+    const shortUrl = parentElement.querySelector(
+      ".short-url-link"
+    ) as HTMLSpanElement;
+
+    const copyButtons = section.getElementsByClassName("short-url-copy");
+    for (let i = 0; i < copyButtons.length; i++) {
+      copyButtons[i].classList.remove("clicked");
+      copyButtons[i].textContent = "Copy";
+    }
+
+    if (shortUrl.textContent) {
+      writeClipboardText(shortUrl.textContent, () => {
+        element.classList.add("clicked");
+        element.textContent = "Copied!";
+      });
+    } else {
+      element.classList.remove("clicked");
+      element.textContent = "Copy";
+    }
+  });
+
+  async function writeClipboardText(text: string, cb: Function) {
+    try {
+      await navigator.clipboard.writeText(text);
+      cb();
+    } catch (error) {
+      if (error instanceof Error) {
+        console.error(error.message);
+      } else {
+        console.error(error);
+      }
+    }
+  }
+
+  function createShortUrlBox(longUrl: string, shortUrl: string) {
+    const clone = template.content.cloneNode(true) as DocumentFragment;
+    const longUrlSpan = clone.querySelector(
+      ".long-url-link"
+    ) as HTMLSpanElement;
+    const shortUrlSpan = clone.querySelector(
+      ".short-url-link"
+    ) as HTMLSpanElement;
+    const shortUrlButton = clone.querySelector(
+      ".short-url-copy"
+    ) as HTMLSpanElement;
+
+    longUrlSpan.textContent = `${longUrl}`;
+    shortUrlSpan.textContent = `${shortUrl}`;
+    section.append(clone);
+  }
+
+  async function shortenApi(url: string) {
+    try {
+      const res = await fetch("https://cleanuri.com/api/v1/shorten", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/x-www-form-urlencoded",
+        },
+        body: `url=${url}`,
+      });
+      const shortenedUrl = await res.json();
+      return shortenedUrl.result_url;
+    } catch (error) {
+      console.log("🚀 ~ shortenAPI ~ error:", error);
+    }
+  }
+
+  function clearError() {
+    input.classList.remove("input-error");
+    errorMessageElement.textContent = "";
+  }
+
+  function addErrorMessageToElement(error: string) {
+    input.classList.add("input-error");
+    input.focus();
+    errorMessageElement.textContent = error;
+  }
+
+  function getErrorMessage(input: string): string {
+    if (!input) {
+      return "Please add a link";
+    }
+
+    if (!isValidHttpUrl(input)) {
+      return "Please add a valid link";
+    }
+
+    return "";
+  }
+
+  function isValidHttpUrl(string: string): boolean {
+    let url;
+
+    try {
+      url = new URL(string);
+    } catch {
+      return false;
+    }
+
+    return url.protocol === "http:" || url.protocol === "https:";
+  }
+</script>
